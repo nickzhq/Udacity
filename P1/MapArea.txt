@@ -1,0 +1,4 @@
+﻿Map Area: San Jose, CA, United States
+https://www.openstreetmap.org/relation/112143
+https://mapzen.com/data/metro-extracts/metro/san-jose_california/
+Actually, San Diego is my first option. Since I had stayed in America for 3 years, I went to San Diego three times. However, I didn't find the OSM file of San Diego. The San Jose was chosen as second option.
