@@ -1,0 +1,339 @@
+---
+title: "Project2"
+author: "Nick"
+date: "November 21, 2017"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Abstract
+This document is used to Project#2 of Udacity(Data Analysis-Advacned)
+I will analyze the data of red wine from Udacity. Key goals of study is to find the which facts can affect red wine.
+
+# Introduction
+Before we start the project, don't forget the precondition( file and package ).
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Precondition
+red_wine <- read.csv('C:/Users/Nick/Desktop/Udacity/P2/wineQualityReds.csv')
+
+#red_wine$X <- as.numeric(red_wine$X)
+#install.packages("ggplot2", dependencies = T) 
+#install.packages("knitr", dependencies = T)
+#install.packages("dplyr", dependencies = T)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+```
+# Univariate Plots Section
+This report explores a dataset for approximately 1599 items with 13 variables.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+str(red_wine)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(red_wine)
+```
+
+There is 1,599 rows and 13 variables in raw data. In next section, a new variable( fact.quality ) will be added manually.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# draw a graph about residual.sugar
+ggplot( aes(x=quality), data=red_wine) +
+  geom_histogram(binwidth = 0.3)
+```
+
+check the quality feature first:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+table(red_wine$quality)
+# 5 and 6 percent
+(count(subset(red_wine, quality==5)) + count(subset(red_wine, quality==6)) ) / count(red_wine)
+```
+
+For quality feature, the most of wine are in 5 or 6 quality, which are 82.4% ( = (681+638) / total ).
+
+Next, let us take a look at other varibles
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=fixed.acidity), data=red_wine) +
+  geom_histogram(binwidth = 0.1)
+```
+
+The range of fixed.acidity is between 4.6 and 15.9.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=volatile.acidity), data=red_wine) +
+  geom_histogram(binwidth = 0.01)
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=volatile.acidity), data=red_wine) +
+  geom_histogram(binwidth = 0.01) +
+  coord_cartesian(xlim = seq(0.1, 0.8, 0.05) )
+```
+
+The range volatile.acidity of most red wine is between 0.3 and 0.7.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=citric.acid), data=red_wine) +
+  geom_histogram(binwidth = 0.02)
+```
+
+Looks like citric.acid of most red wine is 0.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=residual.sugar), data=red_wine) +
+  geom_histogram(binwidth = 0.1)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=chlorides), data=red_wine) +
+  geom_histogram(binwidth = 0.01)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=free.sulfur.dioxide), data=red_wine) +
+  geom_histogram(binwidth = 1)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=total.sulfur.dioxide), data=red_wine) +
+  geom_histogram(binwidth = 5)
+```
+
+The four above graphs look like similar, which most data are centralized at left side.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=density), data=red_wine) +
+  geom_histogram(binwidth = 0.0005)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=pH), data=red_wine) +
+  geom_histogram(binwidth = 0.05)
+```
+
+The two above graphs are almostly normal distribution.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=sulphates), data=red_wine) +
+  geom_histogram(binwidth = 0.05)
+```
+
+There is a 'similar' graph, which most data is centralized at left side.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=alcohol ), data=red_wine) +
+  geom_histogram(binwidth = 0.1)
+```
+
+This alcohol of data is stranger. Let us make some changes.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=log10(alcohol) ), data=red_wine) +
+  geom_histogram(binwidth = 0.01)
+```
+
+The above graph is more central than the previous graph.
+
+# Univariate Analysis
+
+#### What is the structure of your dataset?
+There are 1,599 diamonds in the dataset with 13 features (X, fixed.acidity, volatile.acidity, citric.acid , residual.sugar, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, density, pH, sulphates, alcohol and quality).
+
+Other observations:
+
+1. Most red wine are of 5 quality.
+2. The median weight of residual sugar is 2.2 grams.
+3. The alcohol of most red wine are between 9.3 ~ 9.5 degree.
+4. The maxmum pH is 4.01 and the minimum pH is 2.74.
+
+#### What is/are the main feature(s) of interest in your dataset?
+Since there is NOT a strong correlation coefficient, it's hard to find a linear model for prediction. I would prefer to explore quality, residual sugar, pH and alcohol features.
+
+#### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+I guess desinty and sulphate variables may support the investigation.
+
+#### Did you create any new variables from existing variables in the dataset?
+I created a variable, which is "fact.quality" using factor(red_wine$quality).
+
+#### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+This alcohol of data is stranger. I tried to adjust the form of the data. The reason I did this is that I hope its shape can be transformed to normal distribution.
+
+# Bivariate Plots Section
+Let us focus on the correlation coefficient
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+cor(red_wine)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width = 15, fig.height = 15}
+library(GGally)
+set.seed(123456)
+red_wine_samp <- red_wine[sample( 1:length(red_wine$quality),500), ]
+# ggpairs(red_wine_samp, params = c(shape = I('.'), outlier.shape = I('.')) )
+ggpairs(red_wine_samp, 
+  lower = list(continuous = wrap("points", shape = I('.'))), 
+  upper = list(continuous = wrap("cor", size = 3)))
+red_wine$fact.quality <- factor(red_wine$quality)
+# ggpairs(red_wine_samp, upper = list(continuous = wrap("cor", size = 3)))
+```
+
+According to the above info, unfortunately, there has no strong correlation.
+
+
+Based on the information from Google, the pH about 3.3 to 3.6 is best for reds.
+Take a look for quality and pH variables. Let us zoom in pH( 3.3 to 3.6 ). 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes( x = fact.quality, y = pH), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  coord_cartesian(ylim = seq(3.3, 3.6)) +
+  ggtitle("Quality ~ pH")
+```
+
+There is a conclusion at here: The most of 5 and 6 quality are in the best pH range of wine( pH: 3.3 ~ 3.6 ).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=alcohol), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  ggtitle("Quality ~ alcohol") 
+```
+
+After watching the above graphs, we get: The alcohol of most red wine centralize around 9~10 degree when quality is 5.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=fixed.acidity), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  ggtitle("Quality ~ Fixed.acidity") 
+```
+
+The data of fixed.acidity is uneven distribution when quality is equal to 3.
+I guess this phenomenon is impacted by the fact that there are few samples of red wine on quality 3.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=free.sulfur.dioxide), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  ggtitle("Quality ~ free.sulfur.dioxide") 
+```
+
+The most free.sulfur.dioxide are under 40 grams no matter what quality is.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=density), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  ggtitle("Quality ~ density") 
+```
+
+Enlarge the quality 5 and 6
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=density), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  coord_cartesian( xlim = c(3, 4) ) +
+  ggtitle("Quality ~ density") 
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(subset( red_wine, quality == 5 )$density )
+```
+
+For density feature, the defference between median and 1st Qu. is as almost same as the difference between 3rd Qu. and median when quality is equal 5 or 6.
+
+# Bivariate Analysis
+#### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+There are NO any strong correlations.
+
+However, according to the quality ~ pH, the most of 5 and 6 quality are in the best pH range of wine( pH: 3.3 ~ 3.6 ).
+
+
+#### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+The acohol is NOT significant fact for impacting quality.
+
+#### What was the strongest relationship you found?
+Fixed.acidity correlates strongly with pH but correlation is less than 0.7.
+
+
+# Multivariate Plots Section
+Quality ~ alcohol ~ residual.sugar
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x=alcohol, y=residual.sugar, color=fact.quality), data=red_wine) +
+  geom_jitter(alpha = 0.2) +
+  scale_color_brewer(palette = "Blues") +
+  geom_smooth(method = "lm", se = FALSE,size=1) +
+  labs(y = 'residual.sugar',x = 'Alcohol') +
+  ggtitle('Quality ~ alcohol ~ residual.sugar')
+```
+
+
+Enlarge the part we intresting:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x=alcohol, y=residual.sugar, color=fact.quality), data=red_wine) +
+  geom_jitter(alpha = 0.2) +
+  scale_color_brewer(palette = "Blues") +
+  geom_smooth(method = "lm", se = FALSE,size=1) +
+  coord_cartesian(ylim = seq(0,6,1), xlim = seq(7.5,14,1)) +
+  labs(y = 'residual.sugar',x = 'Alcohol') +
+  ggtitle('Quality ~ alcohol ~ residual.sugar')
+```
+
+No matter what alcohol or quality is, residual sugar of most red wine is less than 4 grams.
+
+# Multivariate Analysis
+#### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+The residual sugar can impact the alcohol.
+
+#### Were there any interesting or surprising interactions between features?
+
+Levels of residual sugar are always between 2 and 3 grams no matter what level of quality is.
+
+#### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+NO any strong correlations
+
+
+# Final Plots and Summary
+#### Plot One
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot( aes(x=quality), data=red_wine) +
+  geom_histogram(binwidth = 0.3)
+```
+
+#### Description One
+It's easy to fnd the rate for each levels of quality.
+
+#### Plot Two
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes( x=fact.quality, y=alcohol), data=red_wine) + 
+  geom_boxplot( alpha = 0.5) +
+  geom_jitter( alpha = 0.3) +
+  ggtitle("Quality ~ alcohol") 
+```
+
+#### Description Two
+When only quality is 7, the box figure is most well-distributed and low level of quality has low level of alcohol.
+
+#### Plot Three
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x=alcohol, y=residual.sugar, color=fact.quality), data=red_wine) +
+  geom_jitter(alpha = 0.2) +
+  scale_color_brewer(palette = "Blues") +
+  geom_smooth(method = "lm", se = FALSE,size=1) +
+  coord_cartesian(ylim = seq(0,6,1), xlim = seq(7.5,14,1)) +
+  labs(y = 'residual.sugar',x = 'Alcohol') +
+  ggtitle('Quality ~ alcohol ~ residual.sugar')
+```
+
+#### Description Three
+The residual sugar of most red wine is less than 4 grams and can NOT imapact alcohol.
+
+# Reflection
+Those variables are NOT strong correlation coefficient. It's hard to find a liner model for prediction. However, we still find some useful fact, which is that the most red wine have been centralized into a short range of each features. 
+Based on this article, we just randomly pick up some variables for analysis, which is incomplete. We should pick up each variables of data for analysis. Also, we only do the descriptive analysis. There may exist a better strategy for analysis than strategy we did.
+In addition, we may expand with other variables( brand, price ) into this data set and then try to find a strong correlation coefficient.
